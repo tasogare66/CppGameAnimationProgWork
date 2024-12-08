@@ -21,6 +21,9 @@ add_executable (CppGameAnimationProgWork "Main.cpp" "Main.h" "tools/Logger.cpp" 
 
 find_package(glfw3 3.3 REQUIRED)
 
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED)
+	
 # variable is set by FindGLFW3.cmake, reuse for Linux
 if(UNIX)
   set(GLFW3_LIBRARY glfw)
@@ -33,10 +36,10 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 if(MSVC)
-  target_link_libraries(CppGameAnimationProgWork ${GLFW3_LIBRARY})
+  target_link_libraries(CppGameAnimationProgWork ${GLFW3_LIBRARY} OpenGL::GL)
 else()
   # Clang and GCC may need libstd++
-  target_link_libraries(CppGameAnimationProgWork ${GLFW3_LIBRARY} stdc++)
+  target_link_libraries(CppGameAnimationProgWork ${GLFW3_LIBRARY} OpenGL::GL stdc++)
 endif()
 
 # TODO: テストを追加し、必要な場合は、ターゲットをインストールします。
