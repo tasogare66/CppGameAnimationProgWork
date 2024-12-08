@@ -12,9 +12,9 @@ endif()
 project ("CppGameAnimationProgWork")
 
 # ソースをこのプロジェクトの実行可能ファイルに追加します。
-add_executable (CppGameAnimationProgWork "Main.cpp" "Main.h" "tools/Logger.cpp" "tools/Logger.h")
+add_executable (CppGameAnimationProgWork "Main.cpp" "Main.h" "tools/Logger.cpp" "tools/Logger.h" "window/Window.cpp" "window/Window.h")
 
-include_directories(tools)
+include_directories(tools window)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET CppGameAnimationProgWork PROPERTY CXX_STANDARD 20)
