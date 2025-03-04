@@ -9,5 +9,10 @@ public:
   void cleanup();
 
 private:
+  void handleWindowMoveEvents(int xpos, int ypos);
+  void handleWindowMinimizedEvents(int minimized);
+  void handleWindowMaximizedEvents(int maximized);
+  void handleWindowCloseEvents();
+
   GLFWwindow* mWindow = nullptr;
 };
