@@ -48,6 +48,32 @@ bool Window::init(unsigned int width, unsigned int height, const char* const tit
     }
   );
 
+  // key
+  glfwSetKeyCallback(mWindow, [](GLFWwindow* win, int key, int scancode, int action, int mods) {
+    auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));
+    thisWindow->handleKeyEvents(key, scancode, action, mods);
+    }
+  );
+
+  // mouse
+  glfwSetMouseButtonCallback(mWindow, [](GLFWwindow* win, int button, int action, int mods) {
+    auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));
+    thisWindow->handleMouseButtonEvents(button, action, mods);
+    }
+  );
+
+  glfwSetCursorPosCallback(mWindow, [](GLFWwindow* win, double xpos, double ypos) {
+    auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));
+    thisWindow->handleMousePositionEvents(xpos, ypos);
+    }
+  );
+
+  glfwSetCursorEnterCallback(mWindow, [](GLFWwindow* win, int enter) {
+    auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));
+    thisWindow->handleMouseEnterLeaveEvents(enter);
+    }
+  );
+
   Logger::log(1, "%s: Window successfully initialized\n", __FUNCTION__);
   return true;
 }
@@ -76,6 +102,75 @@ void Window::handleWindowMaximizedEvents(int maximized) {
 
 void Window::handleWindowCloseEvents() {
   Logger::log(1, "%s: Window got close event... bye!\n", __FUNCTION__);
+}
+
+void Window::handleKeyEvents(int key, int scancode, int action, int mods) {
+  const char* actionName = nullptr;
+  switch (action) {
+  case GLFW_PRESS:
+    actionName = "pressed";
+    break;
+  case GLFW_RELEASE:
+    actionName = "released";
+    break;
+  case GLFW_REPEAT:
+    actionName = "repeated";
+    break;
+  default:
+    actionName = "invalid";
+    break;
+  }
+  const char* keyName = glfwGetKeyName(key, 0);
+  Logger::log(1, "%s: key %s (key %i, scancode %i) %s\n", __FUNCTION__, keyName, key, scancode, actionName);
+}
+
+void Window::handleMouseButtonEvents(int button, int action, int mods) {
+  const char* actionName = nullptr;
+  switch (action) {
+  case GLFW_PRESS:
+    actionName = "pressed";
+    break;
+  case GLFW_RELEASE:
+    actionName = "released";
+    break;
+  case GLFW_REPEAT:
+    actionName = "repeated";
+    break;
+  default:
+    actionName = "invalid";
+    break;
+  }
+
+  const char* mouseButtonName = nullptr;
+  switch (button) {
+  case GLFW_MOUSE_BUTTON_LEFT:
+    mouseButtonName = "left";
+    break;
+  case GLFW_MOUSE_BUTTON_MIDDLE:
+    mouseButtonName = "middle";
+    break;
+  case GLFW_MOUSE_BUTTON_RIGHT:
+    mouseButtonName = "right";
+    break;
+  default:
+    mouseButtonName = "other";
+    break;
+  }
+
+  Logger::log(1, "%s: %s mouse button (%i) %s\n", __FUNCTION__, mouseButtonName, button, actionName);
+}
+
+void Window::handleMousePositionEvents(double xpos, double ypos) {
+  Logger::log(1, "%s: Mouse is at position %lf/%lf\n", __FUNCTION__, xpos, ypos);
+}
+
+void Window::handleMouseEnterLeaveEvents(int enter) {
+  if (enter) {
+    Logger::log(1, "%s: Mouse entered window\n", __FUNCTION__);
+  }
+  else {
+    Logger::log(1, "%s: Mouse left window\n", __FUNCTION__);
+  }
 }
 
 void Window::mainLoop() {
