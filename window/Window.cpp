@@ -20,6 +20,13 @@ bool Window::init(unsigned int width, unsigned int height, const char* const tit
 
   glfwMakeContextCurrent(mWindow);
 
+  mRenderer = std::make_unique<OGLRenderer>();
+  if (!mRenderer->init(width, height)) {
+    glfwTerminate();
+    Logger::log(1, "%s error: Could not init OpenGL\n", __FUNCTION__);
+    return false;
+  }
+
   /* the C handlers needs a little 'stunt' here */
   /* 1) save the pointer to the instance as user pointer */
   glfwSetWindowUserPointer(mWindow, this);

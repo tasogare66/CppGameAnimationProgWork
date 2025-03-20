@@ -17,7 +17,17 @@ endif()
 project ("CppGameAnimationProgWork")
 
 # ソースをこのプロジェクトの実行可能ファイルに追加します。
-add_executable (CppGameAnimationProgWork "Main.cpp" "Main.h" "tools/Logger.cpp" "tools/Logger.h" "window/Window.cpp" "window/Window.h")
+file(GLOB SOURCES
+  Main.cpp
+  src/glad.c
+  window/*.cpp
+  tools/*.cpp
+  opengl/*.cpp
+  model/*.cpp
+)
+add_executable(CppGameAnimationProgWork ${SOURCES})
+
+target_include_directories(CppGameAnimationProgWork PUBLIC include src window tools opengl model)
 
 find_package(glfw3 3.3 REQUIRED)
 

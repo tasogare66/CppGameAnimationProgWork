@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
-#include <GLFW/glfw3.h>
+#include <memory>
+
+#include "OGLRenderer.h"
 
 class Window {
 public:
@@ -20,4 +22,6 @@ private:
   void handleMouseEnterLeaveEvents(int enter);
 
   GLFWwindow* mWindow = nullptr;
+
+  std::unique_ptr<OGLRenderer> mRenderer;
 };
