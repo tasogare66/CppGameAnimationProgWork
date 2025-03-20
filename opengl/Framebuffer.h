@@ -9,4 +9,13 @@ public:
   void unbind();
   void drawToScreen();
   void cleanup();
+
+private:
+  uint32_t mBufferWidth = 640;
+  uint32_t mBufferHeight = 480;
+  GLuint mBuffer = 0;
+  GLuint mColorTex = 0;
+  GLuint mDepthBuffer = 0;
+
+  bool checkComplete();
 };
