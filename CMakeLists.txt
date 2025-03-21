@@ -33,6 +33,24 @@ find_package(glfw3 3.3 REQUIRED)
 
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
+
+# copy textures
+file(GLOB TEX_SOURCE_FILES
+  textures/*
+)
+
+add_custom_target(
+  Textures
+  DEPENDS ${TEX_SOURCE_FILES}
+)
+add_dependencies(CppGameAnimationProgWork Textures)
+
+add_custom_command(TARGET Textures POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  "$<TARGET_PROPERTY:CppGameAnimationProgWork,SOURCE_DIR>/textures"
+#  "$<TARGET_PROPERTY:CppGameAnimationProgWork,BINARY_DIR>/$<CONFIGURATION>/textures"
+  "$<TARGET_PROPERTY:CppGameAnimationProgWork,BINARY_DIR>/textures"
+)
 	
 # variable is set by FindGLFW3.cmake, reuse for Linux
 if(UNIX)
