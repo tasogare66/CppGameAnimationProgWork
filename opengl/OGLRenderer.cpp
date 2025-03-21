@@ -51,7 +51,7 @@ void OGLRenderer::setSize(uint32_t width, uint32_t height)
   Logger::log(1, "%s: resized window to %dx%d\n", __FUNCTION__, width, height);
 }
 
-void OGLRenderer::uploadData(OGLMesh vertexData)
+void OGLRenderer::uploadData(const OGLMesh& vertexData)
 {
   mTriangleCount = static_cast<int32_t>(vertexData.vertices.size() / 3);
   mVertexBuffer.uploadData(vertexData);

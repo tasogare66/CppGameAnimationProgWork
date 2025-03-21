@@ -34,6 +34,25 @@ find_package(glfw3 3.3 REQUIRED)
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 
+# copy shader files
+file(GLOB GLSL_SOURCE_FILES
+  shader/*.frag
+  shader/*.vert
+)
+
+add_custom_target(
+  Shaders
+  DEPENDS ${GLSL_SOURCE_FILES}
+)
+add_dependencies(CppGameAnimationProgWork Shaders)
+
+add_custom_command(TARGET Shaders POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  "$<TARGET_PROPERTY:CppGameAnimationProgWork,SOURCE_DIR>/shader"
+#  "$<TARGET_PROPERTY:CppGameAnimationProgWork,BINARY_DIR>/$<CONFIGURATION>/shader"
+  "$<TARGET_PROPERTY:CppGameAnimationProgWork,BINARY_DIR>/shader"
+)
+
 # copy textures
 file(GLOB TEX_SOURCE_FILES
   textures/*

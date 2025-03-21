@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "OGLRenderer.h"
+#include "Model.h"
 
 class Window {
 public:
@@ -24,4 +25,5 @@ private:
   GLFWwindow* mWindow = nullptr;
 
   std::unique_ptr<OGLRenderer> mRenderer;
+  std::unique_ptr<Model> mModel;
 };

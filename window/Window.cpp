@@ -8,7 +8,9 @@ bool Window::init(unsigned int width, unsigned int height, const char* const tit
   }
 
   /* set a "hint" for the NEXT window created*/
-  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   mWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
@@ -30,6 +32,12 @@ bool Window::init(unsigned int width, unsigned int height, const char* const tit
   /* the C handlers needs a little 'stunt' here */
   /* 1) save the pointer to the instance as user pointer */
   glfwSetWindowUserPointer(mWindow, this);
+  glfwSetWindowSizeCallback(mWindow, [](GLFWwindow* win, int width, int height) {
+    auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));
+    auto renderer = thisWindow->mRenderer.get();
+    renderer->setSize(width, height);
+    }
+  );
 
   glfwSetWindowPosCallback(mWindow, [](GLFWwindow* win, int xpos, int ypos) {
     auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));
@@ -80,6 +88,10 @@ bool Window::init(unsigned int width, unsigned int height, const char* const tit
     thisWindow->handleMouseEnterLeaveEvents(enter);
     }
   );
+
+  mModel = std::make_unique<Model>();
+  mModel->init();
+  Logger::log(1, "%s: mockup model data loaded\n", __FUNCTION__);
 
   Logger::log(1, "%s: Window successfully initialized\n", __FUNCTION__);
   return true;
@@ -184,12 +196,11 @@ void Window::mainLoop() {
   /* force VSYNC */
   glfwSwapInterval(1);
 
-  float color = 0.0f;
-  while (!glfwWindowShouldClose(mWindow)) {
-    color >= 1.0f ? color = 0.0f : color += 0.01f;
+  /* upload only once for now */
+  mRenderer->uploadData(mModel->getVertexData());
 
-    glClearColor(color, color, color, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+  while (!glfwWindowShouldClose(mWindow)) {
+    mRenderer->draw();
 
     /* swap buffers */
     glfwSwapBuffers(mWindow);
@@ -200,6 +211,8 @@ void Window::mainLoop() {
 }
 
 void Window::cleanup() {
+  mRenderer->cleanup();
+
   Logger::log(1, "%s: Terminating Window\n", __FUNCTION__);
   glfwDestroyWindow(mWindow);
   glfwTerminate();
