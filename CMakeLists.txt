@@ -24,10 +24,11 @@ file(GLOB SOURCES
   tools/*.cpp
   opengl/*.cpp
   model/*.cpp
+  imgui/*.cpp
 )
 add_executable(CppGameAnimationProgWork ${SOURCES})
 
-target_include_directories(CppGameAnimationProgWork PUBLIC include src window tools opengl model)
+target_include_directories(CppGameAnimationProgWork PUBLIC include src window tools opengl model imgui)
 
 find_package(glfw3 3.3 REQUIRED)
 

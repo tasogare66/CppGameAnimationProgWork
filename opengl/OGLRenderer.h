@@ -10,6 +10,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "UniformBuffer.h"
+#include "UserInterface.h"
 
 #include "OGLRenderData.h"
 
@@ -27,18 +28,17 @@ public:
   void cleanup();
 
 private:
+  OGLRenderData mRenderData{};
+
   Shader mBasicShader{};
   Shader mChangedShader{};
   Framebuffer mFramebuffer{};
   Texture mTex{};
   VertexBuffer mVertexBuffer{};
   UniformBuffer mUniformBuffer{};
+  UserInterface mUserInterface{};
 
-  GLFWwindow* mWindow = nullptr;
-  int32_t mTriangleCount = 0;
   bool mUseChangedShader = false;
-  int mWidth = 0;
-  int mHeight = 0;
 
   /* create identity matrix by default */
   glm::mat4 mViewMatrix = glm::mat4(1.0f);
