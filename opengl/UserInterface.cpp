@@ -13,16 +13,18 @@ void UserInterface::init(const OGLRenderData& renderData)
 
   const char* glslVersion = "#version 460 core";
   ImGui_ImplOpenGL3_Init(glslVersion);
+
+  ImGui::StyleColorsDark();
 }
 
-void UserInterface::createFrame(const OGLRenderData& renderData)
+void UserInterface::createFrame(OGLRenderData& renderData)
 {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
   ImGuiWindowFlags imguiWindowFlags = 0;
-  //imguiWindowFlags |= ImGuiWindowFlags_NoCollapse;
+  imguiWindowFlags |= ImGuiWindowFlags_NoCollapse;
   //imguiWindowFlags |= ImGuiWindowFlags_NoResize;
   //imguiWindowFlags |= ImGuiWindowFlags_NoMove;
 
@@ -30,10 +32,10 @@ void UserInterface::createFrame(const OGLRenderData& renderData)
 
   ImGui::Begin("Control", nullptr, imguiWindowFlags);
 
-  static double newFps = 0.0;
+  static float newFps = 0.0f;
   /* avoid inf values (division by zero) */
-  if (renderData.rdFrameTime > 0.0) {
-    newFps = 1.0f / renderData.rdFrameTime;
+  if (renderData.rdFrameTime > 0.0f) {
+    newFps = 1.0f / renderData.rdFrameTime * 1000.f;
   }
   /* make an averge value to avoid jumps */
   mFramesPerSecond = (mAveragingAlpha * mFramesPerSecond) + (1.0f - mAveragingAlpha) * newFps;
@@ -89,6 +91,35 @@ void UserInterface::createFrame(const OGLRenderData& renderData)
   ImGui::Text("ImGui Window Position:");
   ImGui::SameLine();
   ImGui::Text("%s", imgWindowPos.c_str());
+
+  ImGui::Separator();
+
+  static bool checkBoxChecked = false;
+  ImGui::Checkbox("Check Me", &checkBoxChecked);
+
+  if (checkBoxChecked) {
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+    ImGui::Text("Yes");
+    ImGui::PopStyleColor();
+  }
+
+  if (ImGui::Button("Toggle Shader")) {
+    renderData.rdUseChangedShader = !renderData.rdUseChangedShader;
+  }
+  ImGui::SameLine();
+  if (!renderData.rdUseChangedShader) {
+    ImGui::Text("Basic Shader");
+  }
+  else {
+    ImGui::Text("Changed Shader");
+  }
+
+  ImGui::Separator();
+
+  ImGui::Text("Field of View");
+  ImGui::SameLine();
+  ImGui::SliderInt("##FOV", &renderData.rdFieldOfView, 40, 150);
 
   ImGui::End();
 }

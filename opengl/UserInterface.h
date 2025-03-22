@@ -5,7 +5,7 @@
 class UserInterface {
 public:
   void init(const OGLRenderData& renderData);
-  void createFrame(const OGLRenderData& renderData);
+  void createFrame(OGLRenderData& renderData);
   void render();
   void cleanup();
 private:

@@ -25,6 +25,7 @@ public:
   void draw();
 
   void handleKeyEvents(int key, int scancode, int action, int mods);
+  void toggleShader();
 
   void cleanup();
 
@@ -44,8 +45,6 @@ private:
   VertexBuffer mVertexBuffer{};
   UniformBuffer mUniformBuffer{};
   UserInterface mUserInterface{};
-
-  bool mUseChangedShader = false;
 
   /* create identity matrix by default */
   glm::mat4 mViewMatrix = glm::mat4(1.0f);

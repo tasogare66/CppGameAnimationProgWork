@@ -72,11 +72,11 @@ bool Window::init(unsigned int width, unsigned int height, const char* const tit
   );
 
   // mouse
-  glfwSetMouseButtonCallback(mWindow, [](GLFWwindow* win, int button, int action, int mods) {
-    auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));
-    thisWindow->handleMouseButtonEvents(button, action, mods);
-    }
-  );
+  //glfwSetMouseButtonCallback(mWindow, [](GLFWwindow* win, int button, int action, int mods) {
+  //  auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));
+  //  thisWindow->handleMouseButtonEvents(button, action, mods);
+  //  }
+  //);
 
   glfwSetCursorPosCallback(mWindow, [](GLFWwindow* win, double xpos, double ypos) {
     auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));

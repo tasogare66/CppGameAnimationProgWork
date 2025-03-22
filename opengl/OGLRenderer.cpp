@@ -88,8 +88,13 @@ void OGLRenderer::uploadData(const OGLMesh& vertexData)
 void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods)
 {
   if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    mUseChangedShader = !mUseChangedShader;
+    toggleShader();
   }
+}
+
+void OGLRenderer::toggleShader()
+{
+  mRenderData.rdUseChangedShader = !mRenderData.rdUseChangedShader;
 }
 
 void OGLRenderer::draw()
@@ -116,17 +121,19 @@ void OGLRenderer::draw()
   glm::vec3 cameraPosition = glm::vec3(0.4f, 0.3f, 1.0f);
   glm::vec3 cameraLookAtPosition = glm::vec3(0.0f, 0.0f, 0.0f);
   glm::vec3 cameraUpVector = glm::vec3(0.0f, 1.0f, 0.0f);
-  mProjectionMatrix = glm::perspective(glm::radians(90.0f), static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight), 0.1f, 100.f);
+
+  mProjectionMatrix = glm::perspective(glm::radians(static_cast<float>(mRenderData.rdFieldOfView)), static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight), 0.1f, 10.0f);
+
   float t = static_cast<float>(glfwGetTime());
   glm::mat4 model = glm::mat4(1.0f);
 
-  if (mUseChangedShader) {
-    mChangedShader.use();
-    model = glm::rotate(glm::mat4(1.0f), t, glm::vec3(0.0f, 0.0f, 1.0f));
-  }
-  else {
+  if (!mRenderData.rdUseChangedShader) {
     mBasicShader.use();
     model = glm::rotate(glm::mat4(1.0f), -t, glm::vec3(0.0f, 0.0f, 1.0f));
+  }
+  else {
+    mChangedShader.use();
+    model = glm::rotate(glm::mat4(1.0f), t, glm::vec3(0.0f, 0.0f, 1.0f));
   }
   mViewMatrix = glm::lookAt(cameraPosition, cameraLookAtPosition, cameraUpVector) * model;
 

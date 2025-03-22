@@ -22,12 +22,16 @@ struct OGLRenderData {
   {}
   GLFWwindow* rdWindow = nullptr;
 
-  int rdWidth = 0;
-  int rdHeight = 0;
+  int32_t rdWidth = 0;
+  int32_t rdHeight = 0;
 
   uint32_t rdTriangleCount = 0;
 
-  double rdFrameTime = 0.0;
+  int32_t rdFieldOfView = 90;
+
+  bool rdUseChangedShader = false;
+
+  float rdFrameTime = 0.0f;
   float rdMatrixGenerateTime = 0.0f;
   float rdUploadToUBOTime = 0.0f;
   float rdUIGenerateTime = 0.0f;
