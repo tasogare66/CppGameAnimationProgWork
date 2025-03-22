@@ -1,8 +1,16 @@
 #include "OGLRenderer.h"
 #include "Logger.h"
 
+OGLRenderer::OGLRenderer(GLFWwindow* window)
+  : mWindow(window)
+{}
+
 bool OGLRenderer::init(uint32_t width, uint32_t height)
 {
+  /* required for perspective */
+  mWidth = width;
+  mHeight = height;
+
   /* initalize GLAD */
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     Logger::log(1, "%s error: failed to initialize GLAD\n", __FUNCTION__);
@@ -29,7 +37,11 @@ bool OGLRenderer::init(uint32_t width, uint32_t height)
   mVertexBuffer.init();
   Logger::log(1, "%s: vertex buffer successfully created\n", __FUNCTION__);
 
-  if (!mShader.loadShaders("shader/basic.vert", "shader/basic.frag")) {
+  if (!mBasicShader.loadShaders("shader/basic.vert", "shader/basic.frag")) {
+    Logger::log(1, "%s: shader loading failed\n", __FUNCTION__);
+    return false;
+  }
+  if (!mChangedShader.loadShaders("shader/changed.vert", "shader/changed.frag")) {
     Logger::log(1, "%s: shader loading failed\n", __FUNCTION__);
     return false;
   }
@@ -57,8 +69,21 @@ void OGLRenderer::uploadData(const OGLMesh& vertexData)
   mVertexBuffer.uploadData(vertexData);
 }
 
+void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods)
+{
+  if (glfwGetKey(mWindow, GLFW_KEY_SPACE) == GLFW_PRESS) {
+    mUseChangedShader = !mUseChangedShader;
+  }
+}
+
 void OGLRenderer::draw()
 {
+  /* handle minimize */
+  while (mWidth == 0 || mHeight == 0) {
+    glfwGetFramebufferSize(mWindow, &mWidth, &mHeight);
+    glfwWaitEvents();
+  }
+
   /* draw to framebuffer */
   mFramebuffer.bind();
 
@@ -68,7 +93,12 @@ void OGLRenderer::draw()
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
-  mShader.use();
+  if (mUseChangedShader) {
+    mChangedShader.use();
+  }
+  else {
+    mBasicShader.use();
+  }
   mTex.bind();
   mVertexBuffer.bind();
 
@@ -84,7 +114,8 @@ void OGLRenderer::draw()
 
 void OGLRenderer::cleanup()
 {
-  mShader.cleanup();
+  mBasicShader.cleanup();
+  mChangedShader.cleanup();
   mTex.cleanup();
   mVertexBuffer.cleanup();
   mFramebuffer.cleanup();

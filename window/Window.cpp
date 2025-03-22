@@ -22,7 +22,7 @@ bool Window::init(unsigned int width, unsigned int height, const char* const tit
 
   glfwMakeContextCurrent(mWindow);
 
-  mRenderer = std::make_unique<OGLRenderer>();
+  mRenderer = std::make_unique<OGLRenderer>(mWindow);
   if (!mRenderer->init(width, height)) {
     glfwTerminate();
     Logger::log(1, "%s error: Could not init OpenGL\n", __FUNCTION__);
@@ -67,6 +67,7 @@ bool Window::init(unsigned int width, unsigned int height, const char* const tit
   glfwSetKeyCallback(mWindow, [](GLFWwindow* win, int key, int scancode, int action, int mods) {
     auto thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(win));
     thisWindow->handleKeyEvents(key, scancode, action, mods);
+    thisWindow->mRenderer->handleKeyEvents(key, scancode, action, mods);
     }
   );
 

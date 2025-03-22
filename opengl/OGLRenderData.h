@@ -4,10 +4,11 @@
 #include <glm/glm.hpp>
 
 struct OGLVertex {
-	glm::vec3 position;
-	glm::vec2 uv;
+  glm::vec3 position;
+  glm::vec3 color;
+  glm::vec2 uv;
 };
 
 struct OGLMesh {
-	std::vector<OGLVertex> vertices;
+  std::vector<OGLVertex> vertices;
 };
