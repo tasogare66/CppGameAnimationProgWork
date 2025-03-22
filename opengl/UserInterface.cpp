@@ -44,6 +44,38 @@ void UserInterface::createFrame(const OGLRenderData& renderData)
 
   ImGui::Separator();
 
+  ImGui::Text("Frame Time:");
+  ImGui::SameLine();
+  ImGui::Text("%s", std::to_string(renderData.rdFrameTime).c_str());
+  ImGui::SameLine();
+  ImGui::Text("ms");
+
+  ImGui::Text("Matrix Generation Time:");
+  ImGui::SameLine();
+  ImGui::Text("%s", std::to_string(renderData.rdMatrixGenerateTime).c_str());
+  ImGui::SameLine();
+  ImGui::Text("ms");
+
+  ImGui::Text("Matrix Upload Time:");
+  ImGui::SameLine();
+  ImGui::Text("%s", std::to_string(renderData.rdUploadToUBOTime).c_str());
+  ImGui::SameLine();
+  ImGui::Text("ms");
+
+  ImGui::Text("UI Generation Time:");
+  ImGui::SameLine();
+  ImGui::Text("%s", std::to_string(renderData.rdUIGenerateTime).c_str());
+  ImGui::SameLine();
+  ImGui::Text("ms");
+
+  ImGui::Text("UI Draw Time:");
+  ImGui::SameLine();
+  ImGui::Text("%s", std::to_string(renderData.rdUIDrawTime).c_str());
+  ImGui::SameLine();
+  ImGui::Text("ms");
+
+  ImGui::Separator();
+
   ImGui::Text("Triangles:");
   ImGui::SameLine();
   ImGui::Text("%s", std::to_string(renderData.rdTriangleCount).c_str());

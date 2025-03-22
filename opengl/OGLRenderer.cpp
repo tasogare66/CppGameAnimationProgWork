@@ -58,6 +58,8 @@ bool OGLRenderer::init(uint32_t width, uint32_t height)
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
+  mFrameTimer.start();
+
   return true;
 }
 
@@ -98,8 +100,8 @@ void OGLRenderer::draw()
     glfwWaitEvents();
   }
 
-  static double prevFrameStartTime = 0.0;
-  double frameStartTime = glfwGetTime();
+  mRenderData.rdFrameTime = mFrameTimer.stop();
+  mFrameTimer.start();
 
   /* draw to framebuffer */
   mFramebuffer.bind();
@@ -110,6 +112,7 @@ void OGLRenderer::draw()
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
 
+  mMatrixGenerateTimer.start();
   glm::vec3 cameraPosition = glm::vec3(0.4f, 0.3f, 1.0f);
   glm::vec3 cameraLookAtPosition = glm::vec3(0.0f, 0.0f, 0.0f);
   glm::vec3 cameraUpVector = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -126,7 +129,13 @@ void OGLRenderer::draw()
     model = glm::rotate(glm::mat4(1.0f), -t, glm::vec3(0.0f, 0.0f, 1.0f));
   }
   mViewMatrix = glm::lookAt(cameraPosition, cameraLookAtPosition, cameraUpVector) * model;
+
+  mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
+
+  mUploadToUBOTimer.start();
   mUniformBuffer.uploadUboData(mViewMatrix, mProjectionMatrix);
+  mRenderData.rdUploadToUBOTime = mUploadToUBOTimer.stop();
+
   mTex.bind();
   mVertexBuffer.bind();
 
@@ -139,11 +148,13 @@ void OGLRenderer::draw()
   /* blit color buffer to screen */
   mFramebuffer.drawToScreen();
 
+  mUIGenerateTimer.start();
   mUserInterface.createFrame(mRenderData);
-  mUserInterface.render();
+  mRenderData.rdUIGenerateTime = mUIGenerateTimer.stop();
 
-  mRenderData.rdFrameTime = frameStartTime - prevFrameStartTime;
-  prevFrameStartTime = frameStartTime;
+  mUIDrawTimer.start();
+  mUserInterface.render();
+  mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
 }
 
 void OGLRenderer::cleanup()

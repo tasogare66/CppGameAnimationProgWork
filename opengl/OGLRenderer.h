@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "Timer.h"
 #include "Framebuffer.h"
 #include "VertexBuffer.h"
 #include "Texture.h"
@@ -29,6 +30,12 @@ public:
 
 private:
   OGLRenderData mRenderData{};
+
+  Timer mFrameTimer{};
+  Timer mMatrixGenerateTimer{};
+  Timer mUploadToUBOTimer{};
+  Timer mUIGenerateTimer{};
+  Timer mUIDrawTimer{};
 
   Shader mBasicShader{};
   Shader mChangedShader{};
