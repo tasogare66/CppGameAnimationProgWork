@@ -9,6 +9,7 @@
 #include "VertexBuffer.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "UniformBuffer.h"
 
 #include "OGLRenderData.h"
 
@@ -31,10 +32,15 @@ private:
   Framebuffer mFramebuffer{};
   Texture mTex{};
   VertexBuffer mVertexBuffer{};
+  UniformBuffer mUniformBuffer{};
 
   GLFWwindow* mWindow = nullptr;
   int32_t mTriangleCount = 0;
   bool mUseChangedShader = false;
   int mWidth = 0;
   int mHeight = 0;
+
+  /* create identity matrix by default */
+  glm::mat4 mViewMatrix = glm::mat4(1.0f);
+  glm::mat4 mProjectionMatrix = glm::mat4(1.0f);
 };
