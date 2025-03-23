@@ -1,6 +1,7 @@
 #include "OGLRenderer.h"
 #include "Logger.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <imgui_impl_glfw.h>
 
 OGLRenderer::OGLRenderer(GLFWwindow* window)
   : mRenderData(window)
@@ -92,6 +93,75 @@ void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods)
   }
 }
 
+void OGLRenderer::handleMouseButtonEvents(int button, int action, int mods)
+{
+  /* forward to ImGui */
+  ImGuiIO& io = ImGui::GetIO();
+  if (button >= 0 && button < ImGuiMouseButton_COUNT) {
+    io.AddMouseButtonEvent(button, action == GLFW_PRESS);
+  }
+
+  /* hide from application */
+  if (io.WantCaptureMouse) {
+    return;
+  }
+
+  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+    mMouseLock = !mMouseLock;
+
+    if (mMouseLock) {
+      glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      /* enable raw mode if possible */
+      if (glfwRawMouseMotionSupported()) {
+        glfwSetInputMode(mRenderData.rdWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+      }
+    }
+    else {
+      glfwSetInputMode(mRenderData.rdWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+  }
+}
+
+void OGLRenderer::handleMousePositionEvents(double xPos, double yPos)
+{
+  /* forward to ImGui */
+  ImGuiIO& io = ImGui::GetIO();
+  io.AddMousePosEvent(static_cast<float>(xPos), static_cast<float>(yPos));
+
+  /* hide from application */
+  if (io.WantCaptureMouse) {
+    return;
+  }
+
+  /* calculate relative movement from last position */
+  int mouseMoveRelX = static_cast<int>(xPos) - mMouseXPos;
+  int mouseMoveRelY = static_cast<int>(yPos) - mMouseYPos;
+
+  if (mMouseLock) {
+    mRenderData.rdViewAzimuth += static_cast<float>(mouseMoveRelX / 10.0);
+    /* keep between 0 and 360 degree */
+    if (mRenderData.rdViewAzimuth < 0.0f) {
+      mRenderData.rdViewAzimuth += 360.0f;
+    }
+    if (mRenderData.rdViewAzimuth >= 360.0f) {
+      mRenderData.rdViewAzimuth -= 360.0f;
+    }
+
+    mRenderData.rdViewElevation -= static_cast<float>(mouseMoveRelY / 10.0);
+    /* keep between -89 and +89 degree */
+    if (mRenderData.rdViewElevation > 89.0f) {
+      mRenderData.rdViewElevation = 89.0f;
+    }
+    if (mRenderData.rdViewElevation < -89.0f) {
+      mRenderData.rdViewElevation = -89.0f;
+    }
+  }
+
+  /* save old values*/
+  mMouseXPos = static_cast<int>(xPos);
+  mMouseYPos = static_cast<int>(yPos);
+}
+
 void OGLRenderer::toggleShader()
 {
   mRenderData.rdUseChangedShader = !mRenderData.rdUseChangedShader;
@@ -105,8 +175,14 @@ void OGLRenderer::draw()
     glfwWaitEvents();
   }
 
+  /* get time difference for movement */
+  double tickTime = glfwGetTime();
+  mRenderData.rdTickDiff = static_cast<float>(tickTime - mLastTickTime);
+
   mRenderData.rdFrameTime = mFrameTimer.stop();
   mFrameTimer.start();
+
+  handleMovementKeys();
 
   /* draw to framebuffer */
   mFramebuffer.bind();
@@ -118,10 +194,6 @@ void OGLRenderer::draw()
   glEnable(GL_DEPTH_TEST);
 
   mMatrixGenerateTimer.start();
-  glm::vec3 cameraPosition = glm::vec3(0.4f, 0.3f, 1.0f);
-  glm::vec3 cameraLookAtPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-  glm::vec3 cameraUpVector = glm::vec3(0.0f, 1.0f, 0.0f);
-
   mProjectionMatrix = glm::perspective(glm::radians(static_cast<float>(mRenderData.rdFieldOfView)), static_cast<float>(mRenderData.rdWidth) / static_cast<float>(mRenderData.rdHeight), 0.1f, 10.0f);
 
   float t = static_cast<float>(glfwGetTime());
@@ -135,7 +207,7 @@ void OGLRenderer::draw()
     mChangedShader.use();
     model = glm::rotate(glm::mat4(1.0f), t, glm::vec3(0.0f, 0.0f, 1.0f));
   }
-  mViewMatrix = glm::lookAt(cameraPosition, cameraLookAtPosition, cameraUpVector) * model;
+  mViewMatrix = mCamera.getViewMatrix(mRenderData) * model;
 
   mRenderData.rdMatrixGenerateTime = mMatrixGenerateTimer.stop();
 
@@ -162,6 +234,8 @@ void OGLRenderer::draw()
   mUIDrawTimer.start();
   mUserInterface.render();
   mRenderData.rdUIDrawTime = mUIDrawTimer.stop();
+
+  mLastTickTime = tickTime;
 }
 
 void OGLRenderer::cleanup()
@@ -173,4 +247,31 @@ void OGLRenderer::cleanup()
   mVertexBuffer.cleanup();
   mUniformBuffer.cleanup();
   mFramebuffer.cleanup();
+}
+
+void OGLRenderer::handleMovementKeys()
+{
+  mRenderData.rdMoveForward = 0;
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_W) == GLFW_PRESS) {
+    mRenderData.rdMoveForward += 1;
+  }
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_S) == GLFW_PRESS) {
+    mRenderData.rdMoveForward -= 1;
+  }
+
+  mRenderData.rdMoveRight = 0;
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_A) == GLFW_PRESS) {
+    mRenderData.rdMoveRight -= 1;
+  }
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_D) == GLFW_PRESS) {
+    mRenderData.rdMoveRight += 1;
+  }
+
+  mRenderData.rdMoveUp = 0;
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_E) == GLFW_PRESS) {
+    mRenderData.rdMoveUp += 1;
+  }
+  if (glfwGetKey(mRenderData.rdWindow, GLFW_KEY_Q) == GLFW_PRESS) {
+    mRenderData.rdMoveUp -= 1;
+  }
 }

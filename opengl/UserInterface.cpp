@@ -2,6 +2,8 @@
 #include <string>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#define GLM_ENABLE_EXPERIMENTAL //FIXME:  
+#include <glm/gtx/string_cast.hpp>
 
 void UserInterface::init(const OGLRenderData& renderData)
 {
@@ -75,6 +77,20 @@ void UserInterface::createFrame(OGLRenderData& renderData)
   ImGui::Text("%s", std::to_string(renderData.rdUIDrawTime).c_str());
   ImGui::SameLine();
   ImGui::Text("ms");
+
+  ImGui::Separator();
+
+  ImGui::Text("Camera Position:");
+  ImGui::SameLine();
+  ImGui::Text("%s", glm::to_string(renderData.rdCameraWorldPosition).c_str());
+
+  ImGui::Text("View Azimuth:");
+  ImGui::SameLine();
+  ImGui::Text("%s", std::to_string(renderData.rdViewAzimuth).c_str());
+
+  ImGui::Text("View Elevation:");
+  ImGui::SameLine();
+  ImGui::Text("%s", std::to_string(renderData.rdViewElevation).c_str());
 
   ImGui::Separator();
 

@@ -12,6 +12,7 @@
 #include "Shader.h"
 #include "UniformBuffer.h"
 #include "UserInterface.h"
+#include "Camera.h"
 
 #include "OGLRenderData.h"
 
@@ -25,6 +26,8 @@ public:
   void draw();
 
   void handleKeyEvents(int key, int scancode, int action, int mods);
+  void handleMouseButtonEvents(int button, int action, int mods);
+  void handleMousePositionEvents(double xPos, double yPos);
   void toggleShader();
 
   void cleanup();
@@ -45,6 +48,14 @@ private:
   VertexBuffer mVertexBuffer{};
   UniformBuffer mUniformBuffer{};
   UserInterface mUserInterface{};
+  Camera mCamera{};
+  bool mMouseLock = false;
+  int32_t mMouseXPos = 0;
+  int32_t mMouseYPos = 0;
+
+  double mLastTickTime = 0.0;
+
+  void handleMovementKeys();
 
   /* create identity matrix by default */
   glm::mat4 mViewMatrix = glm::mat4(1.0f);
